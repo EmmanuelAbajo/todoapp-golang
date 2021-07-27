@@ -1,24 +1,31 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	ct "todo-app/controller"
-	"github.com/gorilla/mux"
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+	"todo-app/domain"
 )
 
-func main()  {
 
-	db, err := sql.Open("mysql", "admin:password@tcp(127.0.0.1:6604)/testdb")
+func main()  {
+	_ = godotenv.Load("conf.env")
+
+	fmt.Println("Conecting to Database...")
+	dbConn, err := sql.Open("mysql", domain.GetDbConnectionURL())
 	if err != nil {
 		panic(err.Error())
 	}
-
-	defer db.Close()
+	fmt.Println("Conection to Database successful!")
+	defer dbConn.Close()
 	
+	port := os.Getenv("PORT")
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/todo", ct.CreateTodoHandler).Methods("POST")
@@ -26,8 +33,8 @@ func main()  {
 	router.HandleFunc("/todo/{id}", ct.GetTodoHandler).Methods("GET")
 	router.HandleFunc("/todo/{id}", ct.DeleteTodoHandler).Methods("DELETE")
 
-	fmt.Println("Server running on port 8090")
-	if err := http.ListenAndServe(":8090",router); err != nil {
+	fmt.Printf("Server running on port %s", port)
+	if err := http.ListenAndServe(port,router); err != nil {
 		log.Fatal(err)
 	}
 }
