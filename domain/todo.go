@@ -4,11 +4,11 @@ import "fmt"
 
 // Todo Represents the todo model
 type Todo struct {
-	id int
-	name string
-	content string
+	ID int `gorm:"primary_key" json:"id"`
+	Name string `gorm:"type:varchar(100)" json:"name"`
+	Content string `gorm:"type:varchar(100)" json:"content"`
 }
 
 func (todo *Todo) toString() string {
-	return fmt.Sprintf("Todo: {id: %d, name: %s, content: %s }", todo.id, todo.name, todo.content)
+	return fmt.Sprintf("Todo: {id: %d, name: %s, content: %s }", todo.ID, todo.Name, todo.Content)
 }
